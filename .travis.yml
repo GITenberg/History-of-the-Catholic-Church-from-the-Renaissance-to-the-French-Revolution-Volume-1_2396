@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: HyWgIvhVK0BijuzVkjQhUvNaX6/aYzTid8TM84m1pAiER3llbVhWzTTj7YgAAGinWMSxd/xXnb0+jP1QhNwVfDjuNPYXJxFnC1svBNdw2NqmmMr4kp1/zMULJ/Lu4ng78eFdClBQ/n/hyBkNZfMxS+k6zUi2qIas6e31QboPv91syoDfkWY3FjUS4LtqhyQiLcCZ4Qsk1efkv4hjN+iWQj1lRj8UGz3V9DEtBH5PWTejoGxsLyPaXcM+IY7fdjKihLY3t4AnmiD72r0hjpsAm5Xu+2LVh76vP4PUPKnIUo5fv5/qT0wfN/BsLj+BUDnprbP2wEjVCGnivXoInHZsFr77r+NajkoE3+vN18hwIZ0sOY1PXdTitUT+HmXIWIhF37eOcbzKS7B3QVWrdaNGC+xXgvWuT+xOJCZIJEzJnB1SU+QIkB0rbBeOCzdqX0pN/Y84I+BllP7lTC4j2KP7z9yxEq8TB8HRDqvP19XNg/NcrLumvJ9JGq4wIaYA9/2AJCFn7L4VpWRgK4M8V5GoxpfIK7dOF+LOA9JbE18PaGIjUgrjkW98nxDLv+WCO5Iq2taD9nI/zEySADUyyJfqPhgiTpMmiiN6AsrabMoQIj4uXopkl9+4YQkp0i550mwRAEsItCopEeIeE7F8INW/1GgkvcoBNjNNzqrQFOPN3UI=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/History-of-the-Catholic-Church-from-the-Renaissance-to-the-French-Revolution-Volume-1_2396
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
